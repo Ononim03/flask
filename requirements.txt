@@ -1,3 +1,6 @@
 sqlalchemy
 flask
 flask-wtf
+Werkzeug
+WTForms
+requests
