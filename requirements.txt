@@ -4,3 +4,4 @@ flask-wtf
 Werkzeug
 WTForms
 requests
+sqlalchemy_serializer
