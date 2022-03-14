@@ -4,3 +4,6 @@ flask-wtf
 Werkzeug
 WTForms
 requests
+sqlalchemy_serializer
+flask-login
+waitress
