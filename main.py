@@ -177,6 +177,24 @@ def create_job(**kwargs):
     db_sess.commit()
 
 
+def create_user(surname, name, age, position, speciality, address, email):
+    user = User()
+
+    user.surname = surname
+    user.name = name
+    user.age = age
+    user.position = position
+    user.speciality = speciality
+    user.address = address
+    user.email = email
+
+    db_sess = db_session.create_session()
+
+    db_sess.add(user)
+
+    db_sess.commit()
+
+
 if __name__ == '__main__':
     db_session.global_init("db/blogs.db")
     # create_job(team_leader=1,
