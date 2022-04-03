@@ -5,7 +5,7 @@ from flask_restful import Api
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from data import db_session, jobs_api
+from data import db_session, jobs_api, jobs_resource
 from data.jobs import Jobs
 from data.users import User
 from data.users_recource import UserListResource, UserResource
@@ -23,6 +23,13 @@ api.add_resource(UserListResource, '/api/v2/users')
 
 # для одного объекта
 api.add_resource(UserResource, '/api/v2/users/<int:user_id>')
+api.add_resource(jobs_resource.JobsListResource, '/api/v2/jobs')
+api.add_resource(jobs_resource.JobsResource, '/api/v2/jobs/<int:jobs_id>')
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 @app.route('/')
