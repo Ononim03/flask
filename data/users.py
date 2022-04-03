@@ -20,6 +20,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
                              nullable=True)
     age = sqlalchemy.Column(sqlalchemy.Integer,
                             nullable=True)
+    city_from = sqlalchemy.Column(sqlalchemy.String, default='Москва')
     position = sqlalchemy.Column(sqlalchemy.String,
                                  nullable=True)
     speciality = sqlalchemy.Column(sqlalchemy.String,

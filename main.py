@@ -1,11 +1,12 @@
 import os
 
-from flask import Flask, request, render_template, make_response, jsonify
+from flask import Flask, request, render_template, make_response, jsonify, url_for
 from flask_restful import Api
+from requests import get
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from data import db_session, jobs_api, jobs_resource
+from data import db_session, jobs_api, jobs_resource, users_api
 from data.jobs import Jobs
 from data.users import User
 from data.users_recource import UserListResource, UserResource
@@ -29,7 +30,7 @@ api.add_resource(jobs_resource.JobsResource, '/api/v2/jobs/<int:jobs_id>')
 
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
+    return make_response(jsonify({'error': '404'}), 404)
 
 
 @app.route('/')
@@ -180,6 +181,36 @@ def success():
     return render_template('success.html')
 
 
+@app.route('/users_show/<int:user_id>')
+def users_show(user_id):
+    user = get(f'http://localhost:5000/api/users/{user_id}').json()
+    name = user['user']['name'] + ' ' + user['user']['surname']
+    toponym_to_find = user['user']['city_from']
+    geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+    geocoder_params = {
+        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+        "geocode": toponym_to_find,
+        "format": "json"}
+    response = get(geocoder_api_server, params=geocoder_params)
+    json_response = response.json()
+    toponym = json_response["response"]["GeoObjectCollection"][
+        "featureMember"][0]["GeoObject"]
+    toponym_coodrinates = toponym["Point"]["pos"]
+    toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
+    delta = "1"
+    map_params = {
+        "ll": ",".join([toponym_longitude, toponym_lattitude]),
+        "spn": ",".join([delta, delta]),
+        "l": "sat"
+    }
+    map_api_server = "http://static-maps.yandex.ru/1.x/"
+    response = get(map_api_server, params=map_params)
+    map_file = "static/img/map.png"
+    with open(map_file, "wb") as file:
+        file.write(response.content)
+    return render_template('users_show.html', name=name, path=url_for('static', filename='img/map.png'))
+
+
 def create_job(**kwargs):
     db_sess = db_session.create_session()
 
@@ -231,6 +262,7 @@ if __name__ == '__main__':
     #            start_date=datetime.now().date(),
     #            is_finished=False)
     app.register_blueprint(jobs_api.blueprint)
+    app.register_blueprint(users_api.blueprint)
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
     # serve(app, port=port, host='127.0.0.1')
