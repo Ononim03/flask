@@ -230,7 +230,7 @@ if __name__ == '__main__':
     #            collaborators='2, 3',
     #            start_date=datetime.now().date(),
     #            is_finished=False)
-    # app.register_blueprint(jobs_api.blueprint)
+    app.register_blueprint(jobs_api.blueprint)
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
     # serve(app, port=port, host='127.0.0.1')
